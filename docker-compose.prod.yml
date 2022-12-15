@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  app:
+    container_name: app
+    restart: always
+    build: .
+    env_file: .env
+    command:
+      - npm run start
+    ports:
+      - "5000:5000"
