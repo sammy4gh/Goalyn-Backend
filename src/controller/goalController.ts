@@ -2,8 +2,11 @@ import { Handler, Request, Response } from "express";
 import goalModel from "../models/goalModel";
 import expressAsyncHandler from "express-async-handler";
 import userModel from "../models/userModels";
+import {GoalDataType, GoalType} from "../Types/GoalTypes";
+import {UserType} from "../Types/UserTypes";
+import {log} from "util";
 
-const Goal = goalModel;
+const Goal  = goalModel ;
 const User = userModel;
 //@desc Get goals
 //@route GET /api/goals
@@ -13,7 +16,7 @@ const getGoal: Handler = expressAsyncHandler(
 
     // @ts-ignore
     const { id  } = req.user;
-    const goals = await Goal.find({ user: id });
+    const goals : GoalType[] = await Goal.find({ user: id }) || {} as GoalType[];
     res.status(200).json(goals);
   }
 );
@@ -23,18 +26,20 @@ const getGoal: Handler = expressAsyncHandler(
 //@access  Private
 const setGoal: Handler = expressAsyncHandler(
   async (req: Request, res: Response) => {
-    const { text, tags } = req.body;
+    const { text, tags } : GoalDataType = req.body;
+
     // @ts-ignore
-    const { id } = req.user;
-    if (!text) {
+      const { id } = req.user;
+    if (!text || !tags) {
       res.status(400);
-      throw new Error("Please add a text field");
+      throw new Error("Please add a text field and tags");
     }
 
 
-    const goal = await Goal.create({
+    const goal :GoalDataType = await Goal.create({
       text: text,
-      user: id
+      user: id,
+        tags : tags
     });
     res.status(200).json(goal);
   }
@@ -44,8 +49,8 @@ const setGoal: Handler = expressAsyncHandler(
 //@route PUT /api/goals:id
 //@access  Private
 const updateGoal: Handler = expressAsyncHandler(
-  async (req: Request, res: Response) => {
-    const goal = await Goal.findById(req.params.id);
+  async (req: Request  , res: Response) => {
+    const goal : GoalType = await Goal.findById(req.params.id) || {} as GoalType;
 
     if (!goal) {
       res.status(400);
@@ -65,9 +70,9 @@ const updateGoal: Handler = expressAsyncHandler(
       res.status(401);
       throw new Error("User not authorized");
     }
-    const updatedGoal = await Goal.findByIdAndUpdate(req.params.id, req.body, {
+    const updatedGoal : GoalType = await Goal.findByIdAndUpdate(req.params.id, req.body, {
       new: true
-    });
+    })  || {} as GoalType;
 
     res.status(200).json(updatedGoal);
   }
