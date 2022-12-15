@@ -19,6 +19,6 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install --only=production
 COPY --from=0 /app/dist .
-RUN npm install pm2 -g
+#RUN npm install pm2 -g
 EXPOSE 5000
-CMD ["pm2-runtime","./server.js"]
+CMD ["node","./server.js"]
